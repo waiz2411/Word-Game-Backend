@@ -44,7 +44,7 @@ class AdminController extends Controller
         $totalCoins = User::sum('coins');
         
         // Sum completed levels (assume completed levels is level_reached - 1)
-        $levelsCompleted = User::selectRaw('SUM(MAX(0, level_reached - 1)) as total')->value('total') ?? 0;
+        $levelsCompleted = User::selectRaw('SUM(level_reached - 1) as total')->value('total') ?? 0;
         
         // Fetch CPM rates from database
         $rates = CpmRate::pluck('rate', 'ad_type')->all();
