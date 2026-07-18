@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TelemetryController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LevelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,9 @@ Route::post('/user/sync', [UserController::class, 'sync']);
 
 // Telemetry logging endpoints
 Route::post('/telemetry/event', [TelemetryController::class, 'logEvent']);
+
+// Level generation endpoint
+Route::get('/level/{number}', [LevelController::class, 'generate']);
 
 // Admin dashboard query endpoints
 Route::get('/admin/stats', [AdminController::class, 'stats']);
