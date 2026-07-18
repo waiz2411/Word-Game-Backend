@@ -12,6 +12,23 @@ use Illuminate\Support\Facades\Validator;
 class AdminController extends Controller
 {
     /**
+     * Enforce admin password protection.
+     */
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $expectedPassword = env('ADMIN_PASSWORD', 'WordGameMasterAdmin2026!');
+            $providedPassword = $request->header('X-Admin-Password') ?? $request->input('admin_password');
+
+            if ($providedPassword !== $expectedPassword) {
+                return response()->json(['error' => 'Unauthorized. Invalid admin password.'], 401);
+            }
+
+            return $next($request);
+        });
+    }
+
+    /**
      * Get aggregated telemetry statistics.
      *
      * @return \Illuminate\Http\JsonResponse
