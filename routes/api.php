@@ -33,3 +33,4 @@ Route::get('/admin/events', [AdminController::class, 'events']);
 Route::get('/admin/users', [AdminController::class, 'users']);
 Route::get('/admin/rates', [AdminController::class, 'getRates']);
 Route::post('/admin/rates', [AdminController::class, 'saveRates']);
+Route::post('/admin/reset', [AdminController::class, 'reset']);

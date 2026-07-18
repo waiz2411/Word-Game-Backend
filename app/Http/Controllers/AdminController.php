@@ -173,5 +173,33 @@ class AdminController extends Controller
             'success' => true,
             'rates' => CpmRate::pluck('rate', 'ad_type')->all()
         ]);
+     }
+
+    /**
+     * Purge all telemetry events and users from the database, and reset CPM rates.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reset()
+    {
+        // Delete all telemetry events first due to foreign key constraints
+        TelemetryEvent::query()->delete();
+        
+        // Delete all users
+        User::query()->delete();
+        
+        // Reset CPM rates to defaults
+        CpmRate::query()->delete();
+        CpmRate::insert([
+            ['ad_type' => 'banner', 'rate' => 0.0050, 'created_at' => now(), 'updated_at' => now()],
+            ['ad_type' => 'interstitial', 'rate' => 0.0400, 'created_at' => now(), 'updated_at' => now()],
+            ['ad_type' => 'rewarded', 'rate' => 0.0700, 'created_at' => now(), 'updated_at' => now()],
+            ['ad_type' => 'smartlink', 'rate' => 0.1800, 'created_at' => now(), 'updated_at' => now()]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Database successfully purged and reset.'
+        ]);
     }
 }
