@@ -21,15 +21,18 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 
 # Set working directory
 WORKDIR /var/www/html
-
 # Copy project files
 COPY . .
 
-# Install Composer
+# Create storage and bootstrap/cache directories and set ownership
+RUN mkdir -p bootstrap/cache storage/framework/sessions storage/framework/views storage/framework/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
+
+# Install Composer dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions for Laravel storage and cache directories
+# Set permissions again for generated composer files
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 # Expose port 80 (standard Apache port, Render will route traffic here)
