@@ -74,7 +74,6 @@ class TelemetryController extends Controller
         }
 
         // Save last active timestamp
-        $user->last_active = now();
         $user->status = 'Live';
         $user->save();
 
