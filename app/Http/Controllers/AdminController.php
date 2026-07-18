@@ -1,0 +1,177 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\TelemetryEvent;
+use App\Models\CpmRate;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class AdminController extends Controller
+{
+    /**
+     * Get aggregated telemetry statistics.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function stats()
+    {
+        $totalUsers = User::count();
+        
+        $newUsersToday = User::whereDate('created_at', today())->count();
+        
+        $totalAds = User::sum('ads_watched');
+        $totalSmartlinks = User::sum('smartlink_clicks');
+        $totalCoins = User::sum('coins');
+        
+        // Sum completed levels (assume completed levels is level_reached - 1)
+        $levelsCompleted = User::selectRaw('SUM(MAX(0, level_reached - 1)) as total')->value('total') ?? 0;
+        
+        // Fetch CPM rates from database
+        $rates = CpmRate::pluck('rate', 'ad_type')->all();
+        $bannerRate = $rates['banner'] ?? 0.005;
+        $interstitialRate = $rates['interstitial'] ?? 0.04;
+        $rewardedRate = $rates['rewarded'] ?? 0.07;
+        $smartlinkRate = $rates['smartlink'] ?? 0.18;
+
+        // Count event views for precise CPM math
+        $bannerCount = TelemetryEvent::where('type', 'ad_watch_banner')->count();
+        $interstitialCount = TelemetryEvent::where('type', 'ad_watch_interstitial')->count();
+        $rewardedCount = TelemetryEvent::where('type', 'ad_watch_rewarded')->count();
+        $smartlinkCount = TelemetryEvent::where('type', 'smartlink_click')->count();
+
+        // In case event logging is young, use user-aggregate aggregates as minimum counts
+        $interstitialCount = max($interstitialCount, round($totalAds * 0.7));
+        $rewardedCount = max($rewardedCount, round($totalAds * 0.3));
+        $smartlinkCount = max($smartlinkCount, $totalSmartlinks);
+        
+        // Add default estimations for banner counts based on traffic
+        $bannerCount = max($bannerCount, $totalUsers * 3);
+
+        // Revenue calculation
+        $revenue = ($bannerCount * $bannerRate) +
+                   ($interstitialCount * $interstitialRate) +
+                   ($rewardedCount * $rewardedRate) +
+                   ($smartlinkCount * $smartlinkRate);
+
+        return response()->json([
+            'totalUsers' => $totalUsers,
+            'newUsersToday' => $newUsersToday,
+            'totalAdsWatched' => $totalAds,
+            'totalSmartlinkClicks' => $totalSmartlinks,
+            'coinsInCirculation' => $totalCoins,
+            'levelsCompleted' => intval($levelsCompleted),
+            'estimatedRevenue' => round($revenue, 2),
+            'bannersCount' => $bannerCount,
+            'interstitialsCount' => intval($interstitialCount),
+            'rewardedCount' => intval($rewardedCount),
+        ]);
+    }
+
+    /**
+     * Get recent telemetry events.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function events()
+    {
+        $events = TelemetryEvent::with('user')
+            ->orderBy('id', 'desc')
+            ->limit(100)
+            ->get();
+
+        $formatted = $events->map(function ($event) {
+            $details = json_decode($event->details, true);
+            $detailStr = '';
+            
+            // Format details human-readably based on event type
+            if ($event->type === 'level_complete') {
+                $level = $details['level'] ?? 1;
+                $detailStr = "Completed Level $level";
+            } elseif ($event->type === 'ad_watch_interstitial') {
+                $detailStr = "Viewed sponsored interstitial ad";
+            } elseif ($event->type === 'ad_watch_banner') {
+                $detailStr = "Banner ad displayed";
+            } elseif ($event->type === 'ad_watch_rewarded') {
+                $detailStr = "Rewarded video ad completed";
+            } elseif ($event->type === 'smartlink_click') {
+                $detailStr = "Visited smartlink offer";
+            } elseif ($event->type === 'coin_spend') {
+                $item = $details['item'] ?? 'Hint';
+                $cost = $details['cost'] ?? 100;
+                $detailStr = "Spent $cost coins on $item";
+            } elseif ($event->type === 'invite_sent') {
+                $platform = $details['platform'] ?? 'Link';
+                $detailStr = "Sent invite share via $platform";
+            } else {
+                $detailStr = $details['detail'] ?? 'Action performed';
+            }
+
+            return [
+                'timestamp' => $event->created_at->toISOString(),
+                'userId' => $event->user_id,
+                'username' => $event->user->username ?? 'Guest_' . substr($event->user_id, -4),
+                'type' => $event->type,
+                'details' => $detailStr,
+            ];
+        });
+
+        return response()->json($formatted);
+    }
+
+    /**
+     * Get all synchronized users.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function users()
+    {
+        $users = User::orderBy('updated_at', 'desc')->get();
+        return response()->json($users);
+    }
+
+    /**
+     * Get CPM rates.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getRates()
+    {
+        $rates = CpmRate::pluck('rate', 'ad_type')->all();
+        return response()->json($rates);
+    }
+
+    /**
+     * Save/update customized AdsTerra CPM rates.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function saveRates(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'banner' => 'required|numeric|min:0',
+            'interstitial' => 'required|numeric|min:0',
+            'rewarded' => 'required|numeric|min:0',
+            'smartlink' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        foreach ($request->only(['banner', 'interstitial', 'rewarded', 'smartlink']) as $type => $rate) {
+            CpmRate::updateOrCreate(
+                ['ad_type' => $type],
+                ['rate' => floatval($rate)]
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'rates' => CpmRate::pluck('rate', 'ad_type')->all()
+        ]);
+    }
+}

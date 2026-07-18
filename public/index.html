@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Word Cross Master – Classic Word Puzzle Game</title>
+    <meta name="description" content="Play Word Cross Master! Connect letters, solve crosswords, build vocabulary, and earn coins. Invite friends and compete!">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f1d13">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="game-container">
+
+    <!-- ===== AMBIENT LAYER ===== -->
+    <div class="ambient-bg" id="ambient-bg"></div>
+    <div class="sparkles-container" id="sparkles-container"></div>
+
+    <!-- ===== 1. LOADING SCREEN ===== -->
+    <div id="loading-screen" class="screen active">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <span class="logo-word">WORD</span>
+                <span class="logo-cross">CROSS</span>
+                <span class="logo-master">MASTER</span>
+            </div>
+            <div class="wood-tile-loader">
+                <div class="tile anim-tile">W</div>
+                <div class="tile anim-tile">O</div>
+                <div class="tile anim-tile">R</div>
+                <div class="tile anim-tile">D</div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="load-progress"></div>
+                <div class="progress-glow"></div>
+            </div>
+            <p class="loading-text">Loading puzzles…</p>
+        </div>
+    </div>
+
+    <!-- ===== 2. LOBBY SCREEN ===== -->
+    <div id="lobby-screen" class="screen">
+
+        <!-- Decorative floating tiles background -->
+        <div class="lobby-bg-tiles" id="lobby-bg-tiles"></div>
+
+        <header class="lobby-header">
+            <div class="coin-pill">
+                <i class="fa-solid fa-coins"></i>
+                <span id="lobby-coins-count">200</span>
+            </div>
+            <button id="btn-lobby-invite" class="btn-pill btn-invite-pill" aria-label="Invite Friends">
+                <i class="fa-solid fa-user-plus"></i> Invite
+            </button>
+        </header>
+
+        <div class="lobby-hero">
+            <div class="hero-logo">
+                <span class="hl-word">WORD</span>
+                <span class="hl-cross">CROSS</span>
+                <span class="hl-master">MASTER</span>
+            </div>
+            <p class="hero-tagline">Drag · Connect · Conquer</p>
+        </div>
+
+        <div class="lobby-actions">
+            <button id="btn-play-game" class="btn btn-play">
+                <i class="fa-solid fa-play"></i> PLAY NOW
+            </button>
+            <div class="lobby-row-btns">
+                <button id="btn-daily-rewards" class="btn btn-daily">
+                    <i class="fa-solid fa-calendar-star"></i>
+                    <span>Daily<br>Reward</span>
+                </button>
+                <button id="btn-free-coins" class="btn btn-shop">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>Free<br>Coins</span>
+                </button>
+                <button id="btn-lobby-invite-2" class="btn btn-invite-card">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Invite<br>Friends</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="lobby-footer">
+            <button id="btn-lobby-settings" class="btn-icon-round" aria-label="Settings">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <div style="text-align: center;">
+                <p class="lobby-version" style="margin: 0;">v1.0 • Puzzle Master</p>
+                <a href="admin/" class="admin-badge-link" style="font-size: 10px; color: #FACD3E; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-top: 4px;"><i class="fa-solid fa-chart-line"></i> Admin Panel</a>
+            </div>
+            <button id="btn-lobby-help" class="btn-icon-round" aria-label="Help">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
+        </footer>
+    </div>
+
+    <!-- ===== 3. GAMEPLAY SCREEN ===== -->
+    <div id="game-screen" class="screen">
+
+        <!-- Game Header -->
+        <header class="game-header">
+            <div class="gh-left">
+                <button id="btn-back-lobby" class="btn-game-ctrl" aria-label="Back">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="level-indicator" class="level-badge">Level 1</span>
+            </div>
+            <div class="gh-center">
+                <button class="extra-badge" id="extra-words-btn" aria-label="Extra words">
+                    <i class="fa-solid fa-star"></i>
+                    <span id="extra-words-count">0</span>
+                </button>
+            </div>
+            <div class="gh-right">
+                <div class="coin-pill small">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="game-coins-count">200</span>
+                </div>
+                <button id="btn-dictionary" class="btn-game-ctrl" aria-label="Dictionary">
+                    <i class="fa-solid fa-book-open"></i>
+                </button>
+                <button id="btn-game-settings" class="btn-game-ctrl" aria-label="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Board Area -->
+        <main class="board-area">
+            <div class="board-frame">
+                <div class="board-screws">
+                    <span class="screw tl"></span><span class="screw tr"></span>
+                    <span class="screw bl"></span><span class="screw br"></span>
+                </div>
+                <div class="board-inner">
+                    <div id="crossword-grid" class="crossword-grid"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Word Preview -->
+        <section class="word-preview-section">
+            <div id="word-preview" class="word-preview hidden"></div>
+        </section>
+
+        <!-- Letter Wheel -->
+        <section class="wheel-panel">
+            <div class="wheel-wrap">
+                <!-- Left: shuffle -->
+                <button id="btn-shuffle" class="side-btn side-left" title="Shuffle (free)">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+
+                <!-- Wheel -->
+                <div class="wheel-ring" id="letter-wheel">
+                    <canvas id="wheel-canvas" class="wheel-canvas"></canvas>
+                    <div class="wheel-center-dot"></div>
+                </div>
+
+                <!-- Right: hints -->
+                <div class="side-right-btns">
+                    <button id="btn-hint" class="side-btn hint-btn" title="Random Hint (100 coins)">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span class="cost-tag">100</span>
+                    </button>
+                    <button id="btn-target-hint" class="side-btn target-btn" title="Target Hint (150 coins)">
+                        <i class="fa-solid fa-crosshairs"></i>
+                        <span class="cost-tag">150</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===== STICKY BANNER AD ===== -->
+    <div id="ad-banner-container" class="ad-banner">
+        <span class="ad-eyebrow">ADVERTISEMENT</span>
+        <div id="adsterra-banner-slot" class="ad-slot">
+            <!-- Replace with your AdsTerra banner script -->
+            <div class="dummy-banner">
+                <i class="fa-solid fa-rectangle-ad"></i>
+                <span>AdsTerra 320×50 Banner Slot</span>
+            </div>
+        </div>
+        <button id="btn-close-ad-banner" class="ad-close" aria-label="Close ad">×</button>
+    </div>
+
+    <!-- =================== MODALS =================== -->
+
+    <!-- A. Dictionary -->
+    <div id="modal-dictionary" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-book-open"></i> Definitions</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body" id="dictionary-definitions-list">
+                <p class="info-text">Solve words to reveal their meanings here!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- B. Settings -->
+    <div id="modal-settings" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-gear"></i> Settings</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <span><i class="fa-solid fa-volume-high"></i> Sound Effects</span>
+                    <label class="toggle"><input type="checkbox" id="toggle-sfx" checked><span class="knob"></span></label>
+                </div>
+                <div class="setting-row">
+                    <span><i class="fa-solid fa-music"></i> Ambient Music</span>
+                    <label class="toggle"><input type="checkbox" id="toggle-music" checked><span class="knob"></span></label>
+                </div>
+                <div class="setting-row">
+                    <span><i class="fa-solid fa-chart-line" style="color: #ED1C27; margin-right: 8px;"></i> Admin Panel</span>
+                    <a href="admin/" class="btn btn-sm btn-play" style="text-decoration: none; padding: 4px 12px; border-radius: 8px; font-size: 10px; line-height: 1.5; color: white;">OPEN</a>
+                </div>
+                <div class="setting-row">
+                    <span><i class="fa-solid fa-rotate-left"></i> Reset Progress</span>
+                    <button id="btn-reset-game" class="btn btn-danger btn-sm">RESET</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- C. Daily Rewards -->
+    <div id="modal-daily" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-calendar-star"></i> Daily Rewards</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="desc-text">Login daily to collect precious coins!</p>
+                <div class="cal-grid" id="calendar-grid"></div>
+                <button id="btn-claim-daily" class="btn btn-play btn-block mt-12">CLAIM TODAY'S REWARD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- D. Interstitial Ad Popup -->
+    <div id="modal-interstitial" class="modal-overlay ad-overlay">
+        <div class="ad-popup">
+            <div class="ad-timer" id="ad-timer">5</div>
+            <p class="ad-label-text">SPONSORED</p>
+            <div id="interstitial-ad-body" class="ad-content">
+                <div class="dummy-inter">
+                    <i class="fa-solid fa-gamepad big-icon"></i>
+                    <h3>Discover More Games</h3>
+                    <p>Support free puzzles by checking out our partners!</p>
+                    <button class="btn btn-play mt-12" id="btn-interstitial-action">
+                        Visit Now <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </button>
+                </div>
+            </div>
+            <button class="ad-skip hidden" id="btn-close-ad-interstitial">Skip & Continue →</button>
+        </div>
+    </div>
+
+    <!-- E. Level Completed -->
+    <div id="modal-level-completed" class="modal-overlay no-backdrop-close">
+        <div class="completion-card">
+            <div class="confetti-burst" id="confetti-burst"></div>
+            <div class="badge-crown"><i class="fa-solid fa-crown"></i></div>
+            <h2 class="complete-title">Level Complete!</h2>
+            <div class="rewards-box">
+                <div class="reward-row">
+                    <span>Level Bonus</span>
+                    <span class="gold">+25 <i class="fa-solid fa-coins"></i></span>
+                </div>
+                <div class="reward-row hidden" id="extra-coins-row">
+                    <span>Extra Words</span>
+                    <span class="gold" id="extra-bonus-coins">+0 <i class="fa-solid fa-coins"></i></span>
+                </div>
+            </div>
+            <div class="complete-btns">
+                <button id="btn-double-coins" class="btn btn-2x">
+                    <i class="fa-solid fa-circle-play"></i> Watch Ad – Get 2× Coins
+                </button>
+                <button id="btn-next-level" class="btn btn-play">
+                    Next Level <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button id="btn-complete-invite" class="btn btn-invite-slim">
+                    <i class="fa-solid fa-user-plus"></i> Invite a Friend to Play
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- F. Extra Words -->
+    <div id="modal-extra-words" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-star text-gold"></i> Extra Words</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="desc-text">Find bonus words using the same letters! Each earns <strong>+5 coins</strong>.</p>
+                <div class="star-box-row">
+                    <div class="star-box-vis">
+                        <i class="fa-solid fa-treasure-chest"></i>
+                        <span id="extra-current-count">0</span> found
+                    </div>
+                </div>
+                <div class="found-words-wrap" id="extra-words-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- G. Free Coins / Shop -->
+    <div id="modal-shop" class="modal-overlay">
+        <div class="modal glass-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-coins text-gold"></i> Free Coins Hub</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="desc-text">Tap an offer to visit our sponsor and earn instant coins!</p>
+                <div class="offers-list">
+                    <div class="offer-card">
+                        <div class="offer-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="offer-info">
+                            <strong>Daily Boost</strong>
+                            <small>Visit partner link</small>
+                        </div>
+                        <button class="btn btn-earn" data-reward="100" data-link="smartlink">+100 <i class="fa-solid fa-coins"></i></button>
+                    </div>
+                    <div class="offer-card">
+                        <div class="offer-icon"><i class="fa-solid fa-gift"></i></div>
+                        <div class="offer-info">
+                            <strong>Lucky Gift</strong>
+                            <small>Quick sponsor visit</small>
+                        </div>
+                        <button class="btn btn-earn" data-reward="150" data-link="smartlink">+150 <i class="fa-solid fa-coins"></i></button>
+                    </div>
+                    <div class="offer-card">
+                        <div class="offer-icon"><i class="fa-solid fa-circle-play"></i></div>
+                        <div class="offer-info">
+                            <strong>Watch Ad</strong>
+                            <small>View short video</small>
+                        </div>
+                        <button class="btn btn-earn-alt" data-reward="200" id="btn-watch-ad">+200 <i class="fa-solid fa-coins"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- H. INVITE FRIENDS MODAL -->
+    <div id="modal-invite" class="modal-overlay">
+        <div class="modal glass-card invite-card">
+            <div class="modal-head">
+                <h2><i class="fa-solid fa-user-plus"></i> Invite Friends</h2>
+                <button class="modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="invite-hero">
+                    <div class="invite-icon-ring">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                    <p class="invite-headline">Challenge your friends!</p>
+                    <p class="invite-sub">Share Word Cross Master & earn <strong class="text-gold">+50 coins</strong> for every friend who joins.</p>
+                </div>
+
+                <!-- Share link copy box -->
+                <div class="share-link-box">
+                    <input type="text" id="invite-link-input" class="share-input" value="https://wordcrossmaster.app/?ref=your-code" readonly>
+                    <button id="btn-copy-link" class="btn btn-copy">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+
+                <!-- Social share buttons -->
+                <p class="share-label">Share via</p>
+                <div class="social-share-row">
+                    <button class="social-btn whatsapp" id="share-whatsapp" aria-label="Share on WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </button>
+                    <button class="social-btn telegram" id="share-telegram" aria-label="Share on Telegram">
+                        <i class="fa-brands fa-telegram"></i>
+                        <span>Telegram</span>
+                    </button>
+                    <button class="social-btn twitter" id="share-twitter" aria-label="Share on X/Twitter">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <span>Twitter</span>
+                    </button>
+                    <button class="social-btn facebook" id="share-facebook" aria-label="Share on Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </button>
+                </div>
+
+                <!-- Native Share API Button -->
+                <button id="btn-native-share" class="btn btn-play btn-block mt-12">
+                    <i class="fa-solid fa-share-nodes"></i> More Share Options
+                </button>
+
+                <div class="referral-stats">
+                    <div class="ref-stat">
+                        <span class="ref-num" id="ref-count">0</span>
+                        <span class="ref-label">Friends Invited</span>
+                    </div>
+                    <div class="ref-stat">
+                        <span class="ref-num text-gold" id="ref-coins">0</span>
+                        <span class="ref-label">Coins Earned</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- I. Toast Notification -->
+    <div id="toast-notification" class="toast hidden"></div>
+
+</div><!-- end .game-container -->
+
+<script src="telemetry.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+/*
+|--------------------------------------------------------------------------
+| Check If The Application Is Under Maintenance
+|--------------------------------------------------------------------------
+|
+| If the application is in maintenance / demo mode via the "down" command
+| we will select this file so that any pre-rendered views can be shown
+| instead of starting the framework, which could cause an exception.
+|
+*/
+
+if (file_exists(__DIR__.'/storage/framework/maintenance.php')) {
+    require __DIR__.'/storage/framework/maintenance.php';
+}
+
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader for
+| our application. We just need to require it into the script here so
+| that we don't have to worry about manual loading of any of our classes.
+|
+*/
+
+require __DIR__.'/vendor/autoload.php';
+
+/*
+|--------------------------------------------------------------------------
+| Run The Artisan Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed and the response sent back to the terminal. We'll handle
+| everything here so the developer doesn't have to worry about it.
+|
+*/
+
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\Component\Console\Input\ArgvInput,
+    new Symfony\Component\Console\Output\ConsoleOutput
+);
+
+$kernel->terminate($input, $status);
+
+exit($status);

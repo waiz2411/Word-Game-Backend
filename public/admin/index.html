@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Cross Master – Admin Operations & Tracking</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Style Reset & Boomer Design System Implementation -->
+    <style>
+        /* Base Colors & Styling System Variables */
+        :root {
+            --primary-red: #ED1C27;
+            --dark-red-hover: #c4131c;
+            --accent-gold: #FACD3E;
+            --brand-soft: #FEF2F2;
+            --page-bg: #fafaf9;
+            --card-bg: #ffffff;
+            --border-color: #e7e5e4;
+            --text-main: #1c1917;
+            --text-soft: #57534e;
+            --accent-soft-bg: #f5f5f4;
+            
+            --status-live: #10b981;
+            --status-idle: #f59e0b;
+            --status-urgent: #f43f5e;
+            --status-info: #2563eb;
+        }
+
+        /* Ambient page level gradient background */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--page-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(237, 28, 39, 0.03) 0, transparent 50%),
+                radial-gradient(at 50% 0%, rgba(250, 205, 62, 0.03) 0, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+        }
+
+        /* Sticky Header */
+        header.sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-logo .logo-icon {
+            background-color: var(--primary-red);
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 20px;
+            box-shadow: 0 8px 20px rgba(237, 28, 39, 0.2);
+        }
+
+        .header-logo h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .header-logo h1 span {
+            color: var(--primary-red);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Buttons matching system rules */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-red);
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(237, 28, 39, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--text-main);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--accent-soft-bg);
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 10px;
+        }
+
+        .btn-danger {
+            background-color: var(--status-urgent);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            transform: translateY(-2px);
+        }
+
+        /* Layout Main Container */
+        .main-container {
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 28px 40px 48px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 4px;
+        }
+
+        .welcome-title h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 30px;
+            letter-spacing: -0.8px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .welcome-title p {
+            color: var(--text-soft);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 1280px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 22px 24px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 130px;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.09);
+            transform: translateY(-3px);
+            border-color: transparent;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--border-color);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .stat-card.brand-red-edge::before {
+            background: linear-gradient(90deg, var(--primary-red), #ff6b6b);
+        }
+
+        .stat-card.gold-edge::before {
+            background: linear-gradient(90deg, var(--accent-gold), #fde68a);
+        }
+
+        .stat-card.green-edge::before {
+            background: linear-gradient(90deg, var(--status-live), #6ee7b7);
+        }
+
+        .stat-card.blue-edge::before {
+            background: linear-gradient(90deg, var(--status-info), #93c5fd);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .stat-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-soft);
+            line-height: 1.4;
+            max-width: 80%;
+        }
+
+        .stat-icon {
+            font-size: 15px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background-color: var(--accent-soft-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 30px;
+            color: var(--text-main);
+            line-height: 1.1;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+
+        .stat-subtitle {
+            font-size: 10.5px;
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        .stat-subtitle span {
+            font-weight: 700;
+        }
+
+        .stat-subtitle.positive span {
+            color: var(--status-live);
+        }
+
+        /* Two-Column Content Layout */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+        }
+
+        @media (min-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1.65fr 1fr;
+                align-items: start;
+            }
+        }
+
+        /* Card Container (Standard styles matching design system) */
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07);
+        }
+
+        .dashboard-card-header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fafaf9;
+        }
+
+        .dashboard-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-card-title i {
+            color: var(--primary-red);
+            font-size: 17px;
+        }
+
+        .dashboard-card-title h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: -0.2px;
+            color: var(--text-main);
+        }
+
+        .dashboard-card-body {
+            padding: 24px 28px;
+        }
+
+        /* Filter Controls */
+        .filters-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom Styled Input Fields */
+        .input-group {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            background-color: rgba(245, 245, 244, 0.5);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            padding: 12px 16px 12px 42px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.30s ease;
+        }
+
+        .input-field:hover {
+            border-color: var(--border-color);
+        }
+
+        .input-field:focus {
+            background-color: #ffffff;
+            border-color: rgba(237, 28, 39, 0.3);
+            box-shadow: 0 0 0 4px rgba(237, 28, 39, 0.1);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a8a29e;
+            font-size: 14px;
+        }
+
+        .select-field {
+            width: 100%;
+            background-color: rgba(245, 245, 244, 0.5);
+            border: 1px solid transparent;
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+            transition: all 0.30s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%2357534e' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .select-field:hover {
+            border-color: var(--border-color);
+        }
+
+        .select-field:focus {
+            background-color: #ffffff;
+            border-color: rgba(237, 28, 39, 0.3);
+            box-shadow: 0 0 0 4px rgba(237, 28, 39, 0.1);
+        }
+
+        /* Custom Styled Table */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        table.users-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        table.users-table th {
+            background-color: var(--accent-soft-bg);
+            color: var(--text-soft);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table.users-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        table.users-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.users-table tr:hover td {
+            background-color: rgba(245, 245, 244, 0.4);
+        }
+
+        /* User Profile Row styling */
+        .user-id-badge {
+            font-family: monospace;
+            background-color: var(--accent-soft-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--text-soft);
+        }
+
+        .user-name-cell {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .user-device-icon {
+            margin-right: 6px;
+            color: var(--text-soft);
+        }
+
+        /* Status Badge - Pill Style */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 9px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .status-badge.status-live {
+            background-color: #d1fae5;
+            color: var(--status-live);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-badge.status-idle {
+            background-color: #fef3c7;
+            color: var(--status-idle);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-badge.status-urgent {
+            background-color: #ffe4e6;
+            color: var(--status-urgent);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        /* Platform Badge - Stone box */
+        .platform-badge {
+            background-color: var(--accent-soft-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 3px 6px;
+            color: var(--text-soft);
+        }
+
+        /* Live Event Log Feed */
+        .event-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        /* Custom Scrollbar for Event Feed */
+        .event-feed::-webkit-scrollbar, .table-responsive::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .event-feed::-webkit-scrollbar-thumb, .table-responsive::-webkit-scrollbar-thumb {
+            background-color: #d6d3d1;
+            border-radius: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background-color: var(--accent-soft-bg);
+            border-radius: 16px;
+            border-left: 4px solid var(--border-color);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-item.session_start { border-left-color: var(--status-info); }
+        .event-item.level_complete { border-left-color: var(--status-live); }
+        .event-item.ad_watch_interstitial { border-left-color: var(--primary-red); }
+        .event-item.ad_watch_banner { border-left-color: #78716c; }
+        .event-item.ad_watch_rewarded { border-left-color: var(--accent-gold); }
+        .event-item.smartlink_click { border-left-color: var(--status-live); }
+        .event-item.coin_spend { border-left-color: var(--status-urgent); }
+        .event-item.daily_claim { border-left-color: var(--status-info); }
+        .event-item.invite_sent { border-left-color: var(--status-idle); }
+
+        .event-badge-icon {
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .event-item.session_start .event-badge-icon { color: var(--status-info); }
+        .event-item.level_complete .event-badge-icon { color: var(--status-live); }
+        .event-item.ad_watch_interstitial .event-badge-icon { color: var(--primary-red); }
+        .event-item.ad_watch_banner .event-badge-icon { color: #78716c; }
+        .event-item.ad_watch_rewarded .event-badge-icon { color: var(--accent-gold); }
+        .event-item.smartlink_click .event-badge-icon { color: var(--status-live); }
+        .event-item.coin_spend .event-badge-icon { color: var(--status-urgent); }
+        .event-item.daily_claim .event-badge-icon { color: var(--status-info); }
+        .event-item.invite_sent .event-badge-icon { color: var(--status-idle); }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .event-username {
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .event-time {
+            font-size: 10px;
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        .event-desc {
+            font-size: 12px;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Monetization & Analytics progress list */
+        .progress-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .progress-item-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-bar-container {
+            height: 10px;
+            background-color: var(--accent-soft-bg);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-red);
+            border-radius: 9999px;
+            transition: width 0.8s ease-in-out;
+        }
+
+        .progress-bar-fill.gold { background-color: var(--accent-gold); }
+        .progress-bar-fill.green { background-color: var(--status-live); }
+        .progress-bar-fill.blue { background-color: var(--status-info); }
+
+        /* Admin Action Buttons Area */
+        .admin-controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-panel {
+            width: 100%;
+            font-size: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast-notification {
+            min-width: 320px;
+            max-width: 384px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            padding: 16px 20px;
+            border-left: 6px solid var(--status-live);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast-notification.error {
+            border-left-color: var(--primary-red);
+        }
+
+        .toast-notification.info {
+            background-color: var(--text-main);
+            color: #ffffff;
+            border-left-color: var(--text-soft);
+        }
+
+        .toast-notification.info p {
+            color: #d6d3d1;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Header -->
+    <header class="sticky-header">
+        <div class="header-logo">
+            <div class="logo-icon">W</div>
+            <h1>WORD CROSS MASTER <span>ADMIN</span></h1>
+        </div>
+        <div class="header-actions">
+            <a href="../index.html" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Play Game</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Welcome banner -->
+        <div class="welcome-section">
+            <div class="welcome-title">
+                <h2>Operations Dashboard</h2>
+                <p>Monitor real-time player telemetry, traffic logs, and advertising yield dynamics.</p>
+            </div>
+            <div>
+                <button id="btn-refresh-dashboard" class="btn btn-primary btn-small"><i class="fa-solid fa-arrows-rotate"></i> Force Reload</button>
+            </div>
+        </div>
+
+        <!-- Overview stats grid -->
+        <div class="stats-grid" id="stats-summary-grid">
+            
+            <div class="stat-card green-edge">
+                <div class="stat-header">
+                    <span class="stat-title">Active Sessions (Live)</span>
+                    <div class="stat-icon"><i class="fa-solid fa-users-rays" style="color: var(--status-live);"></i></div>
+                </div>
+                <div class="stat-value" id="stat-live-users">0</div>
+                <div class="stat-subtitle positive"><i class="fa-solid fa-arrow-trend-up"></i> <span>Live</span> tracking active</div>
+            </div>
+
+            <div class="stat-card brand-red-edge">
+                <div class="stat-header">
+                    <span class="stat-title">New Users Today</span>
+                    <div class="stat-icon"><i class="fa-solid fa-user-plus" style="color: var(--primary-red);"></i></div>
+                </div>
+                <div class="stat-value" id="stat-new-users">0</div>
+                <div class="stat-subtitle" id="stat-total-users-sub">Total database size: <span>0</span></div>
+            </div>
+
+            <div class="stat-card gold-edge">
+                <div class="stat-header">
+                    <span class="stat-title">Total Ads Watched</span>
+                    <div class="stat-icon"><i class="fa-solid fa-video" style="color: var(--accent-gold);"></i></div>
+                </div>
+                <div class="stat-value" id="stat-ads-watched">0</div>
+                <div class="stat-subtitle" id="stat-ads-types-sub">Banners: <span>0</span> • Inter: <span>0</span> • Video: <span>0</span></div>
+            </div>
+
+            <div class="stat-card blue-edge">
+                <div class="stat-header">
+                    <span class="stat-title">Smartlink Clicks</span>
+                    <div class="stat-icon"><i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--status-info);"></i></div>
+                </div>
+                <div class="stat-value" id="stat-smartlink-clicks">0</div>
+                <div class="stat-subtitle" id="stat-coin-circ-sub">Coins in circulation: <span>0</span></div>
+            </div>
+
+            <div class="stat-card brand-red-edge">
+                <div class="stat-header">
+                    <span class="stat-title">Est. Ad Yield (USD)</span>
+                    <div class="stat-icon"><i class="fa-solid fa-sack-dollar" style="color: var(--status-live);"></i></div>
+                </div>
+                <div class="stat-value" id="stat-revenue">$0.00</div>
+                <div class="stat-subtitle">Estimated RPM: <span>$14.80</span></div>
+            </div>
+        </div>
+
+        <!-- Main Content Area: Two Columns -->
+        <div class="content-layout">
+            
+            <!-- Left Column: Users Directory Table -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <div class="dashboard-card-title">
+                        <i class="fa-solid fa-address-book"></i>
+                        <h3>Player Directory</h3>
+                    </div>
+                    <span class="platform-badge" id="players-count-badge">0 Players</span>
+                </div>
+                
+                <div class="dashboard-card-body">
+                    <!-- Filters -->
+                    <div class="filters-row">
+                        <div class="input-group">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="filter-search" class="input-field" placeholder="Search by username or ID...">
+                        </div>
+                        
+                        <div>
+                            <select id="filter-status" class="select-field">
+                                <option value="all">All Statuses</option>
+                                <option value="Live">Live / Active</option>
+                                <option value="Idle">Idle</option>
+                                <option value="Banned">Banned</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <select id="filter-country" class="select-field">
+                                <option value="all">All Countries</option>
+                                <option value="US">US - United States</option>
+                                <option value="GB">GB - United Kingdom</option>
+                                <option value="CA">CA - Canada</option>
+                                <option value="AU">AU - Australia</option>
+                                <option value="DE">DE - Germany</option>
+                                <option value="FR">FR - France</option>
+                                <option value="IN">IN - India</option>
+                                <option value="BR">BR - Brazil</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Device</th>
+                                    <th>Country</th>
+                                    <th>Progress</th>
+                                    <th>Ads Viewed</th>
+                                    <th>Coins</th>
+                                    <th>Status</th>
+                                    <th>Last Active</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Populated dynamically by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Event Feed & Yield Breakdown -->
+            <div style="display: flex; flex-direction: column; gap: 32px;">
+                
+                <!-- Live Activity Feed -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-title">
+                            <i class="fa-solid fa-bolt" style="color: var(--accent-gold);"></i>
+                            <h3>Live Telemetry Stream</h3>
+                        </div>
+                        <span class="status-badge status-live" style="background-color: #ecfdf5;"><i class="fa-solid fa-circle-play fa-fade" style="margin-right: 4px;"></i> Live Feed</span>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <div class="event-feed" id="event-feed-container">
+                            <!-- Populated dynamically by telemetry actions -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yield Breakdowns -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-title">
+                            <i class="fa-solid fa-chart-pie" style="color: var(--primary-red);"></i>
+                            <h3>Yield Metrics Breakdown</h3>
+                        </div>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <div class="progress-list">
+                            <div>
+                                <div class="progress-item-title">
+                                    <span id="lbl-smartlink-rate">Smartlink Affiliates ($0.18/click)</span>
+                                    <div>
+                                        <span id="breakdown-smartlink-count" style="font-size: 11px; color: var(--text-soft); font-weight: 500; margin-right: 8px;">(0 clicks)</span>
+                                        <span id="breakdown-smartlink-revenue">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill green" id="bar-smartlink" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="progress-item-title">
+                                    <span id="lbl-rewarded-rate">Rewarded Video ($0.07/view)</span>
+                                    <div>
+                                        <span id="breakdown-rewarded-count" style="font-size: 11px; color: var(--text-soft); font-weight: 500; margin-right: 8px;">(0 views)</span>
+                                        <span id="breakdown-rewarded-revenue">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill gold" id="bar-rewarded" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="progress-item-title">
+                                    <span id="lbl-interstitial-rate">Sponsored Interstitials ($0.04/view)</span>
+                                    <div>
+                                        <span id="breakdown-interstitial-count" style="font-size: 11px; color: var(--text-soft); font-weight: 500; margin-right: 8px;">(0 views)</span>
+                                        <span id="breakdown-interstitial-revenue">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="bar-interstitial" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="progress-item-title">
+                                    <span id="lbl-banner-rate">Sticky Banner Bids ($0.005/view)</span>
+                                    <div>
+                                        <span id="breakdown-banner-count" style="font-size: 11px; color: var(--text-soft); font-weight: 500; margin-right: 8px;">(0 views)</span>
+                                        <span id="breakdown-banner-revenue">$0.00</span>
+                                    </div>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill blue" id="bar-banner" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CPM Configuration Card -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-title">
+                            <i class="fa-solid fa-gear" style="color: var(--primary-red);"></i>
+                            <h3>CPM Configuration</h3>
+                        </div>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <p style="font-size: 12px; color: var(--text-soft); margin-bottom: 20px; font-weight: 500;">
+                            Set the CPM rates manually based on your AdsTerra stats to update revenue projections.
+                        </p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="input-group">
+                                <span style="font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.05em;">Smartlink Rate ($)</span>
+                                <i class="fa-solid fa-hand-pointer"></i>
+                                <input type="number" step="0.01" id="rate-smartlink" class="input-field" style="padding-left: 42px;" placeholder="0.18">
+                            </div>
+                            <div class="input-group">
+                                <span style="font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.05em;">Rewarded Video ($)</span>
+                                <i class="fa-solid fa-circle-play"></i>
+                                <input type="number" step="0.01" id="rate-rewarded" class="input-field" style="padding-left: 42px;" placeholder="0.07">
+                            </div>
+                            <div class="input-group">
+                                <span style="font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.05em;">Interstitial Rate ($)</span>
+                                <i class="fa-solid fa-clone"></i>
+                                <input type="number" step="0.001" id="rate-interstitial" class="input-field" style="padding-left: 42px;" placeholder="0.04">
+                            </div>
+                            <div class="input-group">
+                                <span style="font-size: 10px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; display: block; margin-bottom: 6px; letter-spacing: 0.05em;">Sticky Banner ($)</span>
+                                <i class="fa-solid fa-rectangle-ad"></i>
+                                <input type="number" step="0.0001" id="rate-banner" class="input-field" style="padding-left: 42px;" placeholder="0.005">
+                            </div>
+                            <button id="btn-save-rates" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save CPM Rates
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Operator Control Center -->
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-title">
+                            <i class="fa-solid fa-sliders" style="color: var(--text-soft);"></i>
+                            <h3>Operations Terminal</h3>
+                        </div>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <p style="font-size: 12px; color: var(--text-soft); margin-bottom: 20px; font-weight: 500;">
+                            Administrative toolset to simulate real-time load, inject mock events, or perform database maintenance.
+                        </p>
+                        <div class="admin-controls-grid">
+                            <button id="btn-inject-load" class="btn btn-secondary btn-panel">
+                                <i class="fa-solid fa-circle-nodes"></i> Inject User Spike
+                            </button>
+                            <button id="btn-simulate-ad" class="btn btn-secondary btn-panel">
+                                <i class="fa-solid fa-rectangle-ad"></i> Simulate Ad View
+                            </button>
+                            <button id="btn-simulate-click" class="btn btn-secondary btn-panel">
+                                <i class="fa-solid fa-hand-pointer"></i> Simulate Clicks
+                            </button>
+                            <button id="btn-reset-telemetry" class="btn btn-secondary btn-panel btn-danger">
+                                <i class="fa-solid fa-trash-can"></i> Purge Records
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Share telemetry.js -->
+    <script src="../telemetry.js"></script>
+
+    <!-- Operations Controller Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verify Telemetry is loaded
+            if (!window.Telemetry) {
+                console.error("Telemetry module not found");
+                showToast("System Error: Telemetry engine not loaded", "error");
+                return;
+            }
+
+            // Dashboard state caching (closure scope)
+            let stats = {};
+            let users = [];
+            let events = [];
+            let rates = {};
+
+            // Asynchronous fetch pipeline
+            async function fetchData() {
+                try {
+                    const [fetchedStats, fetchedUsers, fetchedEvents, fetchedRates] = await Promise.all([
+                        Telemetry.getStatsAsync(),
+                        Telemetry.getUsersAsync(),
+                        Telemetry.getEventsAsync(50),
+                        Telemetry.getRatesAsync()
+                    ]);
+                    stats = fetchedStats;
+                    users = fetchedUsers;
+                    events = fetchedEvents;
+                    rates = fetchedRates;
+                } catch (e) {
+                    console.error("Error synchronizing admin dashboard data", e);
+                }
+            }
+
+            // Main rendering pipeline
+            async function renderDashboard() {
+                await fetchData();
+                renderOverviewStats();
+                renderUsersTable();
+                renderEventFeed();
+                renderRevenueBreakdown();
+            }
+
+            // Initialize rendering
+            await renderDashboard();
+
+            // Setup automated poll updates (every 5 seconds)
+            setInterval(async () => {
+                await renderDashboard();
+            }, 5000);
+
+            // Listen for live events
+            window.addEventListener('wc_telemetry_event_logged', async (e) => {
+                showToast(`New telemetric log: ${e.detail.username} completed a "${e.detail.type}" action!`, "success");
+                await renderDashboard();
+            });
+
+            window.addEventListener('wc_telemetry_reset', async () => {
+                showToast("Database records purged successfully", "info");
+                await renderDashboard();
+            });
+
+            // Action: Refresh
+            document.getElementById('btn-refresh-dashboard').addEventListener('click', async () => {
+                await renderDashboard();
+                showToast("Telemetry metrics refreshed successfully", "success");
+            });
+
+            // Action: Inject Spike Load
+            document.getElementById('btn-inject-load').addEventListener('click', async () => {
+                await Telemetry.generateSampleDataAsync();
+                showToast("Injecting simulated user traffic spike...", "info");
+                setTimeout(async () => {
+                    await renderDashboard();
+                }, 1000);
+            });
+
+            // Action: Simulate Ad View
+            document.getElementById('btn-simulate-ad').addEventListener('click', async () => {
+                if (users.length === 0) return;
+                const randomUser = users[Math.floor(Math.random() * users.length)];
+                const isVideo = Math.random() > 0.5;
+                const eventType = isVideo ? 'ad_watch_rewarded' : 'ad_watch_interstitial';
+                const reward = isVideo ? 200 : 0;
+
+                try {
+                    // Send to Laravel API
+                    await fetch('http://localhost:8000/api/telemetry/event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: randomUser.userId,
+                            type: eventType,
+                            details: { reward }
+                        })
+                    });
+                    showToast(`Simulated ad watch for ${randomUser.username}`, "info");
+                    await renderDashboard();
+                } catch (e) {
+                    showToast("Failed to simulate ad watch", "error");
+                }
+            });
+
+            // Action: Simulate Smartlink click
+            document.getElementById('btn-simulate-click').addEventListener('click', async () => {
+                if (users.length === 0) return;
+                const randomUser = users[Math.floor(Math.random() * users.length)];
+
+                try {
+                    // Send to Laravel API
+                    await fetch('http://localhost:8000/api/telemetry/event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: randomUser.userId,
+                            type: 'smartlink_click',
+                            details: { reward: 150 }
+                        })
+                    });
+                    showToast(`Simulated smartlink click for ${randomUser.username}`, "info");
+                    await renderDashboard();
+                } catch (e) {
+                    showToast("Failed to simulate smartlink click", "error");
+                }
+            });
+
+            // Action: Purge/Reset
+            document.getElementById('btn-reset-telemetry').addEventListener('click', async () => {
+                if (confirm("WARNING: Are you sure you want to purge all telemetry logs, mock profiles, and statistics? This cannot be undone.")) {
+                    await Telemetry.resetDataAsync();
+                }
+            });
+
+            // Load and display CPM rates
+            try {
+                const initialRates = await Telemetry.getRatesAsync();
+                document.getElementById('rate-smartlink').value = initialRates.smartlink;
+                document.getElementById('rate-rewarded').value = initialRates.rewarded;
+                document.getElementById('rate-interstitial').value = initialRates.interstitial;
+                document.getElementById('rate-banner').value = initialRates.banner;
+            } catch (e) {}
+
+            // Save CPM rates action
+            document.getElementById('btn-save-rates').addEventListener('click', async () => {
+                const newRates = {
+                    smartlink: parseFloat(document.getElementById('rate-smartlink').value) || 0,
+                    rewarded: parseFloat(document.getElementById('rate-rewarded').value) || 0,
+                    interstitial: parseFloat(document.getElementById('rate-interstitial').value) || 0,
+                    banner: parseFloat(document.getElementById('rate-banner').value) || 0
+                };
+                await Telemetry.saveRatesAsync(newRates);
+                showToast("CPM rates updated successfully", "success");
+                await renderDashboard();
+            });
+
+            // Filters listeners
+            document.getElementById('filter-search').addEventListener('input', () => renderUsersTable());
+            document.getElementById('filter-status').addEventListener('change', () => renderUsersTable());
+            document.getElementById('filter-country').addEventListener('change', () => renderUsersTable());
+
+            // Render upper summary statistic cards
+            function renderOverviewStats() {
+                const now = new Date();
+                const liveCount = users.filter(u => {
+                    if (u.status === 'Live') return true;
+                    const diffSec = (now.getTime() - new Date(u.lastActive).getTime()) / 1000;
+                    return diffSec < 60; // active in last 60 seconds
+                }).length;
+
+                document.getElementById('stat-live-users').textContent = liveCount;
+                document.getElementById('stat-new-users').textContent = stats.newUsersToday || 0;
+                document.getElementById('stat-total-users-sub').querySelector('span').textContent = stats.totalUsers || 0;
+                
+                document.getElementById('stat-ads-watched').textContent = stats.totalAdsWatched || 0;
+                document.getElementById('stat-ads-types-sub').innerHTML = 
+                    `Banners: <span>${stats.bannersCount || 0}</span> • Inter: <span>${stats.interstitialsCount || 0}</span> • Video: <span>${stats.rewardedCount || 0}</span>`;
+                
+                document.getElementById('stat-smartlink-clicks').textContent = stats.totalSmartlinkClicks || 0;
+                document.getElementById('stat-coin-circ-sub').querySelector('span').textContent = (stats.coinsInCirculation || 0).toLocaleString();
+                
+                document.getElementById('stat-revenue').textContent = `$${(stats.estimatedRevenue || 0.00).toFixed(2)}`;
+                document.getElementById('players-count-badge').textContent = `${stats.totalUsers || 0} Players`;
+            }
+
+            // Render User Directory table with active search & filters
+            function renderUsersTable() {
+                const searchVal = document.getElementById('filter-search').value.toLowerCase().trim();
+                const statusVal = document.getElementById('filter-status').value;
+                const countryVal = document.getElementById('filter-country').value;
+                
+                const tbody = document.getElementById('users-table-body');
+                tbody.innerHTML = '';
+
+                const filtered = users.filter(user => {
+                    const matchesSearch = !searchVal || 
+                        user.username.toLowerCase().includes(searchVal) || 
+                        user.userId.toLowerCase().includes(searchVal);
+                    const matchesStatus = statusVal === 'all' || user.status === statusVal;
+                    const matchesCountry = countryVal === 'all' || user.country === countryVal;
+
+                    return matchesSearch && matchesStatus && matchesCountry;
+                });
+
+                // Sort by last active desc
+                filtered.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive));
+
+                if (filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-soft); padding: 32px 0;">No players found matching current filters.</td></tr>`;
+                    return;
+                }
+
+                filtered.forEach(user => {
+                    const tr = document.createElement('tr');
+                    const activeTime = formatRelativeTime(user.lastActive);
+                    
+                    let statusClass = 'status-idle';
+                    if (user.status === 'Live') statusClass = 'status-live';
+                    if (user.status === 'Banned') statusClass = 'status-urgent';
+
+                    let deviceIcon = 'fa-desktop';
+                    if (user.device === 'Mobile') deviceIcon = 'fa-mobile-screen-button';
+                    if (user.device === 'Tablet') deviceIcon = 'fa-tablet-screen-button';
+
+                    tr.innerHTML = `
+                        <td><span class="user-id-badge">${user.userId}</span></td>
+                        <td class="user-name-cell">${user.username}</td>
+                        <td><i class="fa-solid ${deviceIcon} user-device-icon"></i> ${user.device}</td>
+                        <td><strong class="platform-badge" style="background-color: #fafaf9; border-color:#e7e5e4;">${user.country}</strong></td>
+                        <td>Level ${user.levelReached}</td>
+                        <td>${user.adsWatched || 0} ads</td>
+                        <td><i class="fa-solid fa-coins" style="color: var(--accent-gold); margin-right: 4px;"></i> ${user.coins}</td>
+                        <td><span class="status-badge ${statusClass}">${user.status}</span></td>
+                        <td style="color: var(--text-soft); font-size: 11px;">${activeTime}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Render Live Event Feed
+            function renderEventFeed() {
+                const feedContainer = document.getElementById('event-feed-container');
+                feedContainer.innerHTML = '';
+                
+                if (events.length === 0) {
+                    feedContainer.innerHTML = `<p style="text-align: center; color: var(--text-soft); padding: 24px 0; font-size: 12px; font-weight: 500;">No telemetry actions logged yet.</p>`;
+                    return;
+                }
+
+                events.forEach(ev => {
+                    const div = document.createElement('div');
+                    div.className = `event-item ${ev.type}`;
+                    
+                    let iconClass = 'fa-circle-play';
+                    if (ev.type === 'session_start') iconClass = 'fa-right-to-bracket';
+                    else if (ev.type === 'level_complete') iconClass = 'fa-trophy';
+                    else if (ev.type === 'ad_watch_interstitial') iconClass = 'fa-rectangle-ad';
+                    else if (ev.type === 'ad_watch_banner') iconClass = 'fa-image';
+                    else if (ev.type === 'ad_watch_rewarded') iconClass = 'fa-circle-play';
+                    else if (ev.type === 'smartlink_click') iconClass = 'fa-arrow-up-right-from-square';
+                    else if (ev.type === 'coin_spend') iconClass = 'fa-tags';
+                    else if (ev.type === 'daily_claim') iconClass = 'fa-calendar-check';
+                    else if (ev.type === 'invite_sent') iconClass = 'fa-paper-plane';
+                    else if (ev.type === 'copy_link') iconClass = 'fa-copy';
+
+                    div.innerHTML = `
+                        <div class="event-badge-icon"><i class="fa-solid ${iconClass}"></i></div>
+                        <div class="event-details">
+                            <div class="event-meta">
+                                <span class="event-username">${ev.username}</span>
+                                <span class="event-time">${formatRelativeTime(ev.timestamp)}</span>
+                            </div>
+                            <p class="event-desc">${ev.details}</p>
+                        </div>
+                    `;
+                    feedContainer.appendChild(div);
+                });
+            }
+
+            // Render progress bar breakdowns of ad yield
+            function renderRevenueBreakdown() {
+                let smartclicks = stats.totalSmartlinkClicks || 0;
+                
+                const BANNER_RATE = rates.banner || 0.005;
+                const INTERSTITIAL_RATE = rates.interstitial || 0.04;
+                const REWARDED_RATE = rates.rewarded || 0.07;
+                const SMARTLINK_RATE = rates.smartlink || 0.18;
+
+                // Dynamically update labels
+                document.getElementById('lbl-smartlink-rate').textContent = `Smartlink Affiliates ($${SMARTLINK_RATE.toFixed(2)}/click)`;
+                document.getElementById('lbl-rewarded-rate').textContent = `Rewarded Video ($${REWARDED_RATE.toFixed(2)}/view)`;
+                document.getElementById('lbl-interstitial-rate').textContent = `Sponsored Interstitials ($${INTERSTITIAL_RATE.toFixed(3)}/view)`;
+                document.getElementById('lbl-banner-rate').textContent = `Sticky Banner Bids ($${BANNER_RATE.toFixed(4)}/view)`;
+
+                const banners = stats.bannersCount || 0;
+                const interstitials = stats.interstitialsCount || 0;
+                const rewarded = stats.rewardedCount || 0;
+
+                const smartlinkRev = smartclicks * SMARTLINK_RATE;
+                const rewardedRev = rewarded * REWARDED_RATE;
+                const interstitialRev = interstitials * INTERSTITIAL_RATE;
+                const bannerRev = banners * BANNER_RATE;
+
+                const total = smartlinkRev + rewardedRev + interstitialRev + bannerRev;
+
+                // Update Counts
+                document.getElementById('breakdown-smartlink-count').textContent = `(${smartclicks} ${smartclicks === 1 ? 'click' : 'clicks'})`;
+                document.getElementById('breakdown-rewarded-count').textContent = `(${rewarded} ${rewarded === 1 ? 'view' : 'views'})`;
+                document.getElementById('breakdown-interstitial-count').textContent = `(${interstitials} ${interstitials === 1 ? 'view' : 'views'})`;
+                document.getElementById('breakdown-banner-count').textContent = `(${banners} ${banners === 1 ? 'view' : 'views'})`;
+
+                document.getElementById('breakdown-smartlink-revenue').textContent = `$${smartlinkRev.toFixed(2)}`;
+                document.getElementById('breakdown-rewarded-revenue').textContent = `$${rewardedRev.toFixed(2)}`;
+                document.getElementById('breakdown-interstitial-revenue').textContent = `$${interstitialRev.toFixed(2)}`;
+                document.getElementById('breakdown-banner-revenue').textContent = `$${bannerRev.toFixed(2)}`;
+
+                // Percentages
+                const pSmart = total > 0 ? (smartlinkRev / total) * 100 : 0;
+                const pRew = total > 0 ? (rewardedRev / total) * 100 : 0;
+                const pInter = total > 0 ? (interstitialRev / total) * 100 : 0;
+                const pBan = total > 0 ? (bannerRev / total) * 100 : 0;
+
+                document.getElementById('bar-smartlink').style.width = `${pSmart}%`;
+                document.getElementById('bar-rewarded').style.width = `${pRew}%`;
+                document.getElementById('bar-interstitial').style.width = `${pInter}%`;
+                document.getElementById('bar-banner').style.width = `${pBan}%`;
+            }
+
+            // Relative time helper
+            function formatRelativeTime(dateStr) {
+                const date = new Date(dateStr);
+                const now = new Date();
+                const diffMs = now.getTime() - date.getTime();
+                const diffSec = Math.floor(diffMs / 1000);
+                
+                if (diffSec < 5) return 'just now';
+                if (diffSec < 60) return `${diffSec}s ago`;
+                
+                const diffMin = Math.floor(diffSec / 60);
+                if (diffMin < 60) return `${diffMin}m ago`;
+                
+                const diffHrs = Math.floor(diffMin / 60);
+                if (diffHrs < 24) return `${diffHrs}h ago`;
+                
+                const diffDays = Math.floor(diffHrs / 24);
+                return `${diffDays}d ago`;
+            }
+
+            // Toast messaging trigger
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const notification = document.createElement('div');
+                notification.className = `toast-notification ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
+                
+                let icon = 'fa-circle-check';
+                if (type === 'error') icon = 'fa-circle-exclamation';
+                if (type === 'info') icon = 'fa-circle-info';
+
+                notification.innerHTML = `
+                    <i class="fa-solid ${icon}" style="font-size: 18px;"></i>
+                    <div>
+                        <p style="font-size: 13px; font-weight: 700; margin-bottom: 2px;">System Update</p>
+                        <p style="font-size: 12px; font-weight: 500; opacity: 0.9;">${message}</p>
+                    </div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Remove after 4 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideInRight 0.4s reverse forwards';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 400);
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>
