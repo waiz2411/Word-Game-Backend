@@ -26,6 +26,7 @@ class UserController extends Controller
             'adsWatched' => 'nullable|integer',
             'smartlinkClicks' => 'nullable|integer',
             'status' => 'nullable|string',
+            'referrerId' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -34,9 +35,27 @@ class UserController extends Controller
 
         $userId = $request->input('userId');
         
-        // Detect device and country fallback if null
+        $dbUser = User::find($userId);
+        $isNewUser = !$dbUser;
+        
         $device = $request->input('device') ?? ($this->detectDevice($request->userAgent()));
         $country = $request->input('country') ?? ($request->header('CF-IPCountry') ?? 'US');
+
+        $clientCoins = $request->input('coins', 200);
+        $mergedCoins = $clientCoins;
+        
+        if ($dbUser) {
+            $mergedCoins = max($dbUser->coins, $clientCoins);
+        }
+
+        $referrerId = $request->input('referrerId');
+        if ($isNewUser && $referrerId && $referrerId !== $userId) {
+            $referrer = User::find($referrerId);
+            if ($referrer) {
+                $referrer->increment('coins', 100);
+            }
+            $mergedCoins = max($mergedCoins, 300);
+        }
 
         $user = User::updateOrCreate(
             ['id' => $userId],
@@ -44,7 +63,7 @@ class UserController extends Controller
                 'username' => $request->input('username'),
                 'device' => $device,
                 'country' => $country,
-                'coins' => $request->input('coins', 200),
+                'coins' => $mergedCoins,
                 'level_reached' => $request->input('levelReached', 1),
                 'ads_watched' => $request->input('adsWatched', 0),
                 'smartlink_clicks' => $request->input('smartlinkClicks', 0),
