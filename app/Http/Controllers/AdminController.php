@@ -73,6 +73,11 @@ class AdminController extends Controller
                    ($rewardedCount * $rewardedRate) +
                    ($smartlinkCount * $smartlinkRate);
 
+        $campaignVisits = TelemetryEvent::where('type', 'campaign_traffic')->count();
+        $metaCampaignVisits = TelemetryEvent::where('type', 'campaign_traffic')->where('details', 'like', '%meta%')->count();
+        $downloadClicks = TelemetryEvent::where('type', 'download_click')->count();
+        $metaDownloadClicks = TelemetryEvent::where('type', 'download_click')->where('details', 'like', '%meta%')->count();
+
         return response()->json([
             'totalUsers' => $totalUsers,
             'newUsersToday' => $newUsersToday,
@@ -84,6 +89,10 @@ class AdminController extends Controller
             'bannersCount' => $bannerCount,
             'interstitialsCount' => intval($interstitialCount),
             'rewardedCount' => intval($rewardedCount),
+            'campaignVisits' => $campaignVisits,
+            'metaCampaignVisits' => $metaCampaignVisits,
+            'downloadClicks' => $downloadClicks,
+            'metaDownloadClicks' => $metaDownloadClicks,
         ]);
     }
 
