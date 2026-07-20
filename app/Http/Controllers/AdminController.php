@@ -122,6 +122,15 @@ class AdminController extends Controller
             } elseif ($event->type === 'invite_sent') {
                 $platform = $details['platform'] ?? 'Link';
                 $detailStr = "Sent invite share via $platform";
+            } elseif ($event->type === 'campaign_traffic') {
+                $source = $details['source'] ?? 'ad';
+                $detailStr = "Visited from campaign: $source";
+            } elseif ($event->type === 'download_click') {
+                $campaign = $details['campaign'] ?? 'organic';
+                $detailStr = "Clicked Download Game button (Campaign: $campaign)";
+            } elseif ($event->type === 'download_complete') {
+                $campaign = $details['campaign'] ?? 'organic';
+                $detailStr = "Installed app successfully (Campaign: $campaign)";
             } else {
                 $detailStr = $details['detail'] ?? 'Action performed';
             }
